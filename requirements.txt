@@ -1,0 +1,5 @@
+clickupython @ git+https://github.com/Imzachjohnson/clickupython.git@c4e4fdfbe123a29b1f750028bc8d30c179d0bb1f
+numpy
+pandas
+requests
+python-dotenv

@@ -219,8 +219,23 @@ def get_tasks(
     updated_date_lt=None,
     as_dataframe=True,
 ):
-    if not created_date_gt:
-        created_date_gt = convert_to_unixtimestamp(get_first_day_of_current_year())
+    created_date_gt = (
+        convert_to_unixtimestamp(
+            created_date_gt if created_date_gt else get_first_day_of_current_year()
+        )
+        * 1000
+    )
+    created_date_lt = (
+        convert_to_unixtimestamp(created_date_lt) * 1000 if created_date_lt else None
+    )
+    due_date_gt = convert_to_unixtimestamp(due_date_gt) * 1000 if due_date_gt else None
+    due_date_lt = convert_to_unixtimestamp(due_date_lt) * 1000 if due_date_lt else None
+    updated_date_gt = (
+        convert_to_unixtimestamp(updated_date_gt) * 1000 if updated_date_gt else None
+    )
+    updated_date_lt = (
+        convert_to_unixtimestamp(updated_date_lt) * 1000 if updated_date_lt else None
+    )
 
     tasks_ = c.get_tasks(
         list_id,
@@ -320,4 +335,4 @@ def get_tasks(
             return tasks_
 
     else:
-        return 'No task in list.'
+        return None

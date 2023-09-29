@@ -210,6 +210,7 @@ group_members = get_group_members(get_team_id())
 
 def get_tasks(
     list_id,
+    subtasks=True,
     created_date_gt=None,
     created_date_lt=None,
     due_date_gt=None,
@@ -224,7 +225,7 @@ def get_tasks(
     tasks_ = c.get_tasks(
         list_id,
         archived=False,
-        subtasks=True,
+        subtasks=subtasks,
         include_closed=True,
         due_date_gt=due_date_gt,
         due_date_lt=due_date_lt,
@@ -266,52 +267,57 @@ def get_tasks(
                     space_id = t_['space']['id']
                     space_name = get_space_name(space_id)
 
-                for assignee in t_['assignees']:
-                    group_info = group_members[
-                        group_members['id'] == int(assignee['id'])
-                    ]
+                task = {
+                    'task_id': t_['id'],
+                    'task_name': t_['name'],
+                    'task_description': t_['description'],
+                    'task_type': get_task_type(task_custom_fields),
+                    'task_status': task_status['status'],
+                    'task_status_type': task_status['type'],
+                    'task_created': convert_from_unixtimestamp(t_['date_created']),
+                    'task_updated': convert_from_unixtimestamp(t_['date_updated']),
+                    'task_closed': convert_from_unixtimestamp(t_['date_closed']),
+                    'task_start': convert_from_unixtimestamp(t_['start_date']),
+                    'task_due': convert_from_unixtimestamp(t_['due_date'], '%Y-%m-%d'),
+                    'creator_id': task_creator['id'],
+                    'creator': task_creator['username'],
+                    'parent': t_['parent'],
+                    'list_id': list_id,
+                    'list_name': list_name,
+                    'folder_id': folder_id,
+                    'folder_name': folder_name,
+                    'space_id': space_id,
+                    'space_name': space_name,
+                    'job_no': get_job_number(task_custom_fields),
+                    'submit_date': get_submit_date(task_custom_fields),
+                    'post_url': get_post_url(task_custom_fields),
+                }
 
-                    if not group_info.empty:
-                        group_name = group_info['name'].values[0]
-                    else:
-                        group_name = None  # or any default value
+                if len(t_['assignees']) > 0:
+                    for assignee in t_['assignees']:
+                        group_info = group_members[
+                            group_members['id'] == int(assignee['id'])
+                        ]
 
-                    task = {
-                        'task_id': t_['id'],
-                        'task_name': t_['name'],
-                        'task_description': t_['description'],
-                        'task_type': get_task_type(task_custom_fields),
-                        'task_status': task_status['status'],
-                        'task_status_type': task_status['type'],
-                        'task_created': convert_from_unixtimestamp(t_['date_created']),
-                        'task_updated': convert_from_unixtimestamp(t_['date_updated']),
-                        'task_closed': convert_from_unixtimestamp(t_['date_closed']),
-                        'task_start': convert_from_unixtimestamp(t_['start_date']),
-                        'task_due': convert_from_unixtimestamp(
-                            t_['due_date'], '%Y-%m-%d'
-                        ),
-                        'creator_id': task_creator['id'],
-                        'creator': task_creator['username'],
-                        'assignee_id': assignee['id'],
-                        'assignee': assignee['username'],
-                        'group': group_name,
-                        'parent': t_['parent'],
-                        'list_id': list_id,
-                        'list_name': list_name,
-                        'folder_id': folder_id,
-                        'folder_name': folder_name,
-                        'space_id': space_id,
-                        'space_name': space_name,
-                        'job_no': get_job_number(task_custom_fields),
-                        'submit_date': get_submit_date(task_custom_fields),
-                        'post_url': get_post_url(task_custom_fields),
-                    }
+                        if not group_info.empty:
+                            group_name = group_info['name'].values[0]
+                        else:
+                            group_name = None  # or any default value
 
+                        task = {
+                            **task,
+                            'assignee_id': assignee['id'],
+                            'assignee': assignee['username'],
+                            'group': group_name,
+                        }
+
+                        tasks.append({**task})
+                else:
                     tasks.append({**task})
+
+            return pd.DataFrame(tasks)
         else:
             return tasks_
 
     else:
         return 'No task in list.'
-
-    return tasks

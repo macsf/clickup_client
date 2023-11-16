@@ -153,6 +153,9 @@ def get_task_type(custom_fields):
         (cf['value'] for cf in custom_fields if cf['name'] == 'Type'), None
     )
 
+    if len(custom_fields) > 0 and custom_fields[0]['type_config']['options'] is None:
+        return None
+
     type_name = (
         custom_fields[0]['type_config']['options'][type_value]['name']
         if type_value is not None

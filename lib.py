@@ -166,6 +166,12 @@ def get_task_type(custom_fields):
     return type_name
 
 
+def get_pillar(custom_fields):
+    job_no = next((cf['value'] for cf in custom_fields if cf['name'] == 'Pillar'), None)
+
+    return job_no
+
+
 def get_job_number(custom_fields):
     job_no = next(
         (cf['value'] for cf in custom_fields if cf['name'] == 'Job Number'), None
@@ -290,6 +296,7 @@ def get_tasks(
                     'task_name': t_['name'],
                     'task_description': t_['description'],
                     'task_type': get_task_type(task_custom_fields),
+                    'task_pillar': get_pillar(task_custom_fields),
                     'task_status': task_status['status'],
                     'task_status_type': task_status['type'],
                     'task_created': convert_from_unixtimestamp(t_['date_created']),

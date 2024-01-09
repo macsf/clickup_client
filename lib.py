@@ -304,6 +304,16 @@ def get_tasks(
                     'task_closed': convert_from_unixtimestamp(t_['date_closed']),
                     'task_start': convert_from_unixtimestamp(t_['start_date']),
                     'task_due': convert_from_unixtimestamp(t_['due_date'], '%Y-%m-%d'),
+                    'time_estimate': (
+                        int(t_['time_estimate'])
+                        if t_['time_estimate'] is not None
+                        else 0
+                    )
+                    / 60000,
+                    'time_spent': (
+                        int(t_['time_spent']) if t_['time_spent'] is not None else 0
+                    )
+                    / 60000,  # milliseconds to minutes
                     'creator_id': task_creator['id'],
                     'creator': task_creator['username'],
                     'parent': t_['parent'],

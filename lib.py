@@ -149,19 +149,17 @@ def get_group_members(team_id):
 
 
 def get_task_type(custom_fields):
-    type_value = next(
-        (cf['value'] for cf in custom_fields if cf['name'] == 'Type'), None
-    )
+    type_name = None
 
-    if len(custom_fields) > 0 and custom_fields[0]['type_config']['options'] is None:
-        return None
+    for cf in custom_fields:
+        if cf['name'] == 'Type':
+            type_value = cf['value'] if cf['value'] is not None else None
 
-    type_name = (
-        custom_fields[0]['type_config']['options'][type_value]['name']
-        if type_value is not None
-        and 0 <= type_value < len(custom_fields[0]['type_config']['options'])
-        else None
-    )
+            type_name = (
+                cf['type_config']['options'][type_value]['name']
+                if type_value is not None
+                else None
+            )
 
     return type_name
 
